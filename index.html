@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aesthetic YouTube Thumbnail Widget</title>
+    <title>Aesthetic Vlog Widget</title>
     <style>
         :root { 
             --gray-text: #BABABA; 
@@ -13,26 +13,23 @@
 
         body { font-family: Arial, sans-serif; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; background: transparent; user-select: none; }
 
-        /* Setup button */
         #master-setup-btn {
             background: var(--btn-bg); border: none; padding: 10px 20px;
             border-radius: 8px; cursor: pointer; font-family: serif; font-style: italic;
             font-weight: bold; margin-bottom: 15px; width: 100%; max-width: 500px;
         }
 
-        /* YouTube 16:9 Landscape Frame */
         #media-container {
             position: relative; width: 100%; max-width: 500px; aspect-ratio: 16 / 9;
-            background: #000; border-radius: 12px; overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background: #111; border-radius: 12px; overflow: hidden;
         }
 
         #display-img { 
             width: 100%; height: 100%; object-fit: cover; 
-            position: absolute; z-index: 1; transition: transform 0.2s ease;
+            position: absolute; top:0; left:0; z-index: 1; 
+            transition: transform 0.2s ease;
         }
 
-        /* Time Badge - Click to edit */
         #time-badge {
             position: absolute; bottom: 8px; right: 8px;
             background: rgba(0, 0, 0, 0.8); color: white;
@@ -41,58 +38,49 @@
         }
 
         .input-overlay {
-            position: absolute; inset: 0; background: rgba(255,255,255,0.98);
+            position: absolute; inset: 0; background: rgba(255,255,255,0.95);
             z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
         }
-        .link-input { width: 80%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; outline: none; font-size: 14px; }
+        
+        .input-group { display: flex; width: 85%; gap: 5px; }
+        .link-input { flex-grow: 1; padding: 12px; border: 2px solid #eee; border-radius: 10px; outline: none; font-size: 14px; }
 
-        /* Info Section - YouTube Style */
         .info-section { width: 100%; max-width: 500px; margin-top: 12px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .text-content { flex-grow: 1; overflow: hidden; }
-        .title-display { font-size: 12pt; font-weight: bold; color: black; margin: 0; cursor: text; line-height: 1.3; outline: none; word-wrap: break-word; }
-        .stats-display { font-size: 10pt; color: var(--gray-text); margin-top: 4px; cursor: text; outline: none; }
+        .text-content { flex-grow: 1; }
+        .title-display { font-size: 12pt; font-weight: bold; color: black; margin: 0; cursor: text; line-height: 1.2; outline: none; }
+        .stats-display { font-size: 10pt; color: var(--gray-text); margin-top: 5px; cursor: text; outline: none; }
         
         .three-dots { cursor: pointer; color: black; font-size: 20px; padding: 0 5px; font-weight: bold; }
 
-        /* Zoom controls */
         #zoom-ui { display: none; gap: 10px; margin-top: 10px; }
         .action-btn { background: white; border: 1px solid #ddd; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
-        .done-btn { background: var(--done-pink); border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        .done-btn { background: var(--done-pink); border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; font-family: serif; }
         
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <script>
-        /* ---------------------------------------------------
-           HARDCORE CONFIG: Edit these to sync for friends!
-           --------------------------------------------------- */
-        const CONFIG = {
-            title: "𝗜𝗻𝘀𝗲𝗿𝘁 𝗧𝗶𝘁𝗹𝗲",
-            stats: "𝗶𝗻𝘀𝗲𝗿𝘁 𝘃𝗶𝗲𝘄𝘀 𝗮𝗻𝗱 𝗱𝗮𝘁𝗲",
-            thumb: "https://i.pinimg.com/736x/a3/77/6d/a3776de68e632eef38e28d8a33d17e70.jpg",
-            length: "0:00",
-            zoom: 1.0
-        };
-    </script>
-
     <button id="master-setup-btn" onclick="openMenu()">𝒑𝒂𝒔𝒕𝒆 𝒕𝒉𝒖𝒎𝒃𝒏𝒂𝒊𝒍</button>
 
     <div id="media-container">
         <div id="menu-ui" class="input-overlay">
-            <span style="font-weight: bold; font-family: serif; font-style: italic;">𝒑𝒂𝒔𝒕𝒆 𝒊𝒎𝒂𝒈𝒆/𝒈𝒊𝒇 𝒍𝒊𝒏𝒌</span>
-            <input type="text" id="img-in" class="link-input" placeholder="Paste link & press Enter">
+            <span style="font-weight: bold; font-family: serif; font-style: italic; font-size: 18px;">𝒍𝒊𝒏𝒌 𝒊𝒎𝒂𝒈𝒆/𝒈𝒊𝒇</span>
+            <div class="input-group">
+                <input type="text" id="img-in" class="link-input" placeholder="Paste link here...">
+                <button class="action-btn" onclick="processLink()" style="background: #eee;">Set</button>
+            </div>
             <button class="done-btn" onclick="closeMenu()">𝒅𝒐𝒏𝒆!</button>
         </div>
-        <img id="display-img" src="">
+
+        <img id="display-img" src="https://i.pinimg.com/736x/a3/77/6d/a3776de68e632eef38e28d8a33d17e70.jpg">
         <div id="time-badge" contenteditable="true" spellcheck="false">0:00</div>
     </div>
 
     <div class="info-section">
         <div class="text-content">
-            <p id="out-title" class="title-display" contenteditable="true" spellcheck="false"></p>
-            <p id="out-stats" class="stats-display" contenteditable="true" spellcheck="false"></p>
+            <p id="out-title" class="title-display" contenteditable="true" spellcheck="false">𝒎𝒚 𝒂𝒆𝒔𝒕𝒉𝒆𝒕𝒊𝒄 𝒗𝒍𝒐𝒈 ✨</p>
+            <p id="out-stats" class="stats-display" contenteditable="true" spellcheck="false">1.2M views • Feb 17, 2026</p>
         </div>
         <div class="three-dots" onclick="openMenu()">⋮</div>
     </div>
@@ -100,52 +88,80 @@
     <div id="zoom-ui">
         <button class="action-btn" onclick="adjustZoom(0.1)">Zoom In</button>
         <button class="action-btn" onclick="adjustZoom(-0.1)">Zoom Out</button>
-        <button class="done-btn" onclick="hideZoom()">𝒅𝒐𝒏𝒆!</button>
+        <button class="done-btn" onclick="saveAndHideZoom()">𝒅𝒐𝒏𝒆!</button>
     </div>
 
     <script>
-        const img = document.getElementById('display-img');
-        const setupBtn = document.getElementById('master-setup-btn');
-        const zoomUI = document.getElementById('zoom-ui');
-        const imgInput = document.getElementById('img-in');
-
-        window.onload = () => {
-            img.src = CONFIG.thumb;
-            img.style.transform = `scale(${CONFIG.zoom})`;
-            document.getElementById('out-title').innerText = CONFIG.title;
-            document.getElementById('out-stats').innerText = CONFIG.stats;
-            document.getElementById('time-badge').innerText = CONFIG.length;
+        const elements = {
+            img: document.getElementById('display-img'),
+            title: document.getElementById('out-title'),
+            stats: document.getElementById('out-stats'),
+            time: document.getElementById('time-badge'),
+            setupBtn: document.getElementById('master-setup-btn'),
+            imgInput: document.getElementById('img-in')
         };
+
+        let currentZoom = 1.0;
+
+        // LOAD DATA ON REFRESH
+        window.onload = () => {
+            const savedData = JSON.parse(localStorage.getItem('vlog_save'));
+            if (savedData) {
+                elements.img.src = savedData.thumb;
+                elements.title.innerText = savedData.title;
+                elements.stats.innerText = savedData.stats;
+                elements.time.innerText = savedData.time;
+                currentZoom = savedData.zoom;
+                elements.img.style.transform = `scale(${currentZoom})`;
+                elements.setupBtn.classList.add('hidden');
+            }
+        };
+
+        // SAVE DATA FUNCTION
+        function saveAll() {
+            const dataToSave = {
+                thumb: elements.img.src,
+                title: elements.title.innerText,
+                stats: elements.stats.innerText,
+                time: elements.time.innerText,
+                zoom: currentZoom
+            };
+            localStorage.setItem('vlog_save', JSON.stringify(dataToSave));
+        }
 
         function openMenu() { document.getElementById('menu-ui').style.display = 'flex'; }
         
         function closeMenu() { 
             document.getElementById('menu-ui').style.display = 'none'; 
-            setupBtn.classList.add('hidden');
-            zoomUI.style.display = 'flex';
+            elements.setupBtn.classList.add('hidden');
+            document.getElementById('zoom-ui').style.display = 'flex';
+            saveAll();
         }
 
-        function hideZoom() { zoomUI.style.display = 'none'; }
+        function saveAndHideZoom() { 
+            document.getElementById('zoom-ui').style.display = 'none'; 
+            saveAll();
+        }
 
         function adjustZoom(val) {
-            CONFIG.zoom += val;
-            img.style.transform = `scale(${CONFIG.zoom})`;
+            currentZoom += val;
+            elements.img.style.transform = `scale(${currentZoom})`;
         }
 
-        imgInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') { 
-                const url = imgInput.value.trim();
-                if(url) img.src = url;
-                imgInput.value = "";
-                e.preventDefault(); 
-            }
+        function processLink() {
+            let url = elements.imgInput.value.trim();
+            if (url) { elements.img.src = url; }
+            elements.imgInput.value = "";
+        }
+
+        elements.imgInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { processLink(); e.preventDefault(); }
         });
 
-        // Fail-safe for broken links
-        img.onerror = () => {
-            alert("This link isn't loading. Try a direct image/GIF link (ends in .jpg or .gif).");
-            img.src = CONFIG.thumb;
-        };
+        // Trigger save when text is edited manually
+        [elements.title, elements.stats, elements.time].forEach(el => {
+            el.addEventListener('blur', saveAll);
+        });
     </script>
 </body>
 </html>
