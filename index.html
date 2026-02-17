@@ -61,6 +61,19 @@
 </head>
 <body>
 
+    <script>
+        /* ---------------------------------------------------
+           HARDCORE CONFIG: Edit these to your final choices!
+           --------------------------------------------------- */
+        const CONFIG = {
+            title: "𝒎𝒚 𝒂𝒆𝒔𝒕𝒉𝒆𝒕𝒊𝒄 𝒗𝒍𝒐𝒈 ✨",
+            stats: "1.2M views • Feb 17, 2026",
+            thumb: "https://i.pinimg.com/736x/a3/77/6d/a3776de68e632eef38e28d8a33d17e70.jpg",
+            length: "4:20",
+            zoom: 1.0
+        };
+    </script>
+
     <button id="master-setup-btn" onclick="openMenu()">𝒑𝒂𝒔𝒕𝒆 𝒕𝒉𝒖𝒎𝒃𝒏𝒂𝒊𝒍</button>
 
     <div id="media-container">
@@ -73,14 +86,14 @@
             <button class="done-btn" onclick="closeMenu()">𝒅𝒐𝒏𝒆!</button>
         </div>
 
-        <img id="display-img" src="https://i.pinimg.com/736x/a3/77/6d/a3776de68e632eef38e28d8a33d17e70.jpg">
+        <img id="display-img" src="">
         <div id="time-badge" contenteditable="true" spellcheck="false">0:00</div>
     </div>
 
     <div class="info-section">
         <div class="text-content">
-            <p id="out-title" class="title-display" contenteditable="true" spellcheck="false">𝒎𝒚 𝒂𝒆𝒔𝒕𝒉𝒆𝒕𝒊𝒄 𝒗𝒍𝒐𝒈 ✨</p>
-            <p id="out-stats" class="stats-display" contenteditable="true" spellcheck="false">1.2M views • Feb 17, 2026</p>
+            <p id="out-title" class="title-display" contenteditable="true" spellcheck="false"></p>
+            <p id="out-stats" class="stats-display" contenteditable="true" spellcheck="false"></p>
         </div>
         <div class="three-dots" onclick="openMenu()">⋮</div>
     </div>
@@ -101,23 +114,24 @@
             imgInput: document.getElementById('img-in')
         };
 
-        let currentZoom = 1.0;
+        let currentZoom = CONFIG.zoom;
 
-        // LOAD DATA ON REFRESH
         window.onload = () => {
-            const savedData = JSON.parse(localStorage.getItem('vlog_save'));
-            if (savedData) {
-                elements.img.src = savedData.thumb;
-                elements.title.innerText = savedData.title;
-                elements.stats.innerText = savedData.stats;
-                elements.time.innerText = savedData.time;
-                currentZoom = savedData.zoom;
-                elements.img.style.transform = `scale(${currentZoom})`;
-                elements.setupBtn.classList.add('hidden');
-            }
+            const savedData = JSON.parse(localStorage.getItem('vlog_save_v4'));
+            
+            // If we have browser memory, use it. If not, use the Hardcore Config.
+            const data = savedData || CONFIG;
+
+            elements.img.src = data.thumb;
+            elements.title.innerText = data.title;
+            elements.stats.innerText = data.stats;
+            elements.time.innerText = data.length || data.time;
+            currentZoom = data.zoom;
+            elements.img.style.transform = `scale(${currentZoom})`;
+            
+            if (savedData) elements.setupBtn.classList.add('hidden');
         };
 
-        // SAVE DATA FUNCTION
         function saveAll() {
             const dataToSave = {
                 thumb: elements.img.src,
@@ -126,7 +140,7 @@
                 time: elements.time.innerText,
                 zoom: currentZoom
             };
-            localStorage.setItem('vlog_save', JSON.stringify(dataToSave));
+            localStorage.setItem('vlog_save_v4', JSON.stringify(dataToSave));
         }
 
         function openMenu() { document.getElementById('menu-ui').style.display = 'flex'; }
@@ -150,7 +164,10 @@
 
         function processLink() {
             let url = elements.imgInput.value.trim();
-            if (url) { elements.img.src = url; }
+            if (url) { 
+                elements.img.src = url; 
+                saveAll();
+            }
             elements.imgInput.value = "";
         }
 
@@ -158,9 +175,11 @@
             if (e.key === 'Enter') { processLink(); e.preventDefault(); }
         });
 
-        // Trigger save when text is edited manually
         [elements.title, elements.stats, elements.time].forEach(el => {
             el.addEventListener('blur', saveAll);
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+            });
         });
     </script>
 </body>
